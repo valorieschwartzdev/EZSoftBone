@@ -58,6 +58,7 @@ namespace EZhex1991.EZSoftBone
             public float stiffness;
             public float resistance;
             public float slackness;
+            public float scale;
 
             public Vector3 speed;
 
@@ -132,6 +133,7 @@ namespace EZhex1991.EZSoftBone
                 stiffness = material.GetStiffness(normalizedLength);
                 resistance = material.GetResistance(normalizedLength);
                 slackness = material.GetSlackness(normalizedLength);
+                scale = material.GetScale();
                 for (int i = 0; i < childBones.Count; i++)
                 {
                     childBones[i].Inflate(baseRadius, radiusCurve, material);
@@ -609,10 +611,12 @@ namespace EZhex1991.EZSoftBone
                 force.x *= transform.localScale.x;
                 force.y *= transform.localScale.y;
                 force.z *= transform.localScale.z;
-                bone.speed += force * (1 - bone.resistance) / iterations;
 
-                // Damping (inertia attenuation)
-                bone.speed *= 1 - bone.damping;
+                bone.speed += force * (deltaTime * (1f - bone.resistance * bone.scale));
+                
+                var dampFactor = Mathf.Exp(-bone.damping * bone.scale * deltaTime);
+                bone.speed *= dampFactor;
+                
                 if (bone.speed.sqrMagnitude > sleepThreshold)
                 {
                     newWorldPosition += bone.speed * deltaTime;
@@ -665,7 +669,7 @@ namespace EZhex1991.EZSoftBone
                     }
                 }
 
-                bone.speed = (bone.speed + (newWorldPosition - oldWorldPosition) / deltaTime) * 0.5f;
+                bone.speed = (newWorldPosition - oldWorldPosition) / deltaTime;
                 bone.worldPosition = newWorldPosition;
             }
             else

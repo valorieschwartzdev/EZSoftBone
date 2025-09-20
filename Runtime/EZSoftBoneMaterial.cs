@@ -38,6 +38,9 @@ namespace EZhex1991.EZSoftBone
         private AnimationCurve m_SlacknessCurve = AnimationCurve.Linear(0, 1, 1, 0.8f);
         public AnimationCurve slacknessCurve { get { return m_SlacknessCurve; } }
 
+        [SerializeField, Range(0, 1)]
+        private float m_Scale = 0.2f;
+
         private static EZSoftBoneMaterial m_DefaultMaterial;
         public static EZSoftBoneMaterial defaultMaterial
         {
@@ -65,6 +68,11 @@ namespace EZhex1991.EZSoftBone
         public float GetSlackness(float t)
         {
             return slackness * slacknessCurve.Evaluate(t);
+        }
+
+        public float GetScale()
+        {
+            return (m_Scale / 0.2f) * 100;
         }
     }
 }

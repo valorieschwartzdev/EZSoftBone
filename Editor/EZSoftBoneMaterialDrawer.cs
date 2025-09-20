@@ -21,6 +21,7 @@ namespace EZhex1991.EZSoftBone
         private SerializedProperty m_StiffnessCurve;
         private SerializedProperty m_ResistanceCurve;
         private SerializedProperty m_SlacknessCurve;
+        private SerializedProperty m_Scale;
 
         private void GetSerializedProperties(Object material)
         {
@@ -39,6 +40,7 @@ namespace EZhex1991.EZSoftBone
                 m_StiffnessCurve = serializedObject.FindProperty("m_StiffnessCurve");
                 m_ResistanceCurve = serializedObject.FindProperty("m_ResistanceCurve");
                 m_SlacknessCurve = serializedObject.FindProperty("m_SlacknessCurve");
+                m_Scale = serializedObject.FindProperty("m_Scale");
             }
         }
 
@@ -74,6 +76,7 @@ namespace EZhex1991.EZSoftBone
                         EditorGUILayout.PropertyField(m_ResistanceCurve);
                         EditorGUILayout.PropertyField(m_Slackness);
                         EditorGUILayout.PropertyField(m_SlacknessCurve);
+                        EditorGUILayout.PropertyField(m_Scale);
                         GUI.enabled = true;
                         EditorGUI.indentLevel--;
                         serializedObject.ApplyModifiedProperties();
