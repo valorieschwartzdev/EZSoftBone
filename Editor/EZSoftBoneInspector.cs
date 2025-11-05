@@ -35,6 +35,7 @@ namespace EZhex1991.EZSoftBone
         private SerializedProperty m_ConstantDeltaTime;
         private SerializedProperty m_Iterations;
         private SerializedProperty m_SleepThreshold;
+        private SerializedProperty m_MaxSpeed;
 
         private SerializedProperty m_Gravity;
         private SerializedProperty m_GravityAligner;
@@ -68,6 +69,7 @@ namespace EZhex1991.EZSoftBone
             m_ConstantDeltaTime = serializedObject.FindProperty(nameof(m_ConstantDeltaTime));
             m_Iterations = serializedObject.FindProperty(nameof(m_Iterations));
             m_SleepThreshold = serializedObject.FindProperty(nameof(m_SleepThreshold));
+            m_MaxSpeed = serializedObject.FindProperty(nameof(m_MaxSpeed));
 
             m_Gravity = serializedObject.FindProperty(nameof(m_Gravity));
             m_GravityAligner = serializedObject.FindProperty(nameof(m_GravityAligner));
@@ -145,6 +147,7 @@ namespace EZhex1991.EZSoftBone
             }
             EditorGUILayout.PropertyField(m_Iterations);
             EditorGUILayout.PropertyField(m_SleepThreshold);
+            EditorGUILayout.PropertyField(m_MaxSpeed);
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Gravity", EditorStyles.boldLabel);

@@ -311,6 +311,9 @@ namespace EZhex1991.EZSoftBone
         [SerializeField]
         private float m_SleepThreshold = 0.005f;
         public float sleepThreshold { get { return m_SleepThreshold; } set { m_SleepThreshold = Mathf.Max(0, value); } }
+        
+        [SerializeField]
+        private float m_MaxSpeed = 5f;
         #endregion
 
         #region Gravity
@@ -343,6 +346,8 @@ namespace EZhex1991.EZSoftBone
         public CustomForce customForce;
 
         private List<Bone> m_Structures = new List<Bone>();
+        private float _fixedAccumulator;
+        private Vector3 _lastRootPosition;
 
         private void Awake()
         {
@@ -358,23 +363,57 @@ namespace EZhex1991.EZSoftBone
         }
         private void LateUpdate()
         {
-            switch (deltaTimeMode)
+            if (Time.timeScale < 0.001f)
+                return;
+            
+            // Detect large instantaneous displacement (teleport)
+            float moveDelta = (transform.position - _lastRootPosition).sqrMagnitude;
+            if (moveDelta > m_MaxSpeed * m_MaxSpeed)
             {
-                case DeltaTimeMode.DeltaTime:
-                    UpdateStructures(Time.deltaTime);
-                    break;
-                case DeltaTimeMode.UnscaledDeltaTime:
-                    UpdateStructures(Time.unscaledDeltaTime);
-                    break;
-                case DeltaTimeMode.Constant:
-                    UpdateStructures(constantDeltaTime);
-                    break;
+                ForceSyncTransforms();
+                _fixedAccumulator = 0f;
             }
+            _lastRootPosition = transform.position;
+            
+            float frameDelta = deltaTimeMode switch
+            {
+                DeltaTimeMode.UnscaledDeltaTime => Time.unscaledDeltaTime,
+                DeltaTimeMode.Constant => constantDeltaTime,
+                _ => Time.deltaTime
+            };
+
+            _fixedAccumulator += frameDelta;
+            const float fixedStep = 1f / 60f;
+
+            while (_fixedAccumulator >= fixedStep)
+            {
+                UpdateStructures(fixedStep);
+                _fixedAccumulator -= fixedStep;
+            }
+
             UpdateTransforms();
         }
         private void OnDisable()
         {
             RevertTransforms(startDepth);
+        }
+        
+        public void ForceSyncTransforms()
+        {
+            for (int i = 0; i < m_Structures.Count; i++)
+                SyncBone(m_Structures[i]);
+        }
+
+        private void SyncBone(Bone bone)
+        {
+            bone.worldPosition = bone.transform.position;
+            bone.systemPosition = bone.systemSpace == null
+                ? bone.worldPosition
+                : bone.systemSpace.InverseTransformPoint(bone.worldPosition);
+            bone.speed = Vector3.zero;
+
+            for (int i = 0; i < bone.childBones.Count; i++)
+                SyncBone(bone.childBones[i]);
         }
 
 #if UNITY_EDITOR
